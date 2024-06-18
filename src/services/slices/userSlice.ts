@@ -24,7 +24,12 @@ const initialState: TUserState = {
 
 export const registerUser = createAsyncThunk(
   'user/registerUser',
-  (userCredentials: TRegisterData) => registerUserApi(userCredentials)
+  async (userCredentials: TRegisterData) => {
+    const data = await registerUserApi(userCredentials);
+    setCookie('accessToken', data.accessToken);
+    localStorage.setItem('refreshToken', data.refreshToken);
+    return data.user;
+  }
 );
 
 export const getUser = createAsyncThunk('user/getUser', () => getUserApi());
@@ -49,7 +54,12 @@ export const checkUserAuth = createAsyncThunk(
 
 export const loginUser = createAsyncThunk(
   'user/loginUser',
-  (userCredentials: TLoginData) => loginUserApi(userCredentials)
+  async (userCredentials: TLoginData) => {
+    const data = await loginUserApi(userCredentials);
+    setCookie('accessToken', data.accessToken);
+    localStorage.setItem('refreshToken', data.refreshToken);
+    return data.user;
+  }
 );
 
 export const logoutUser = createAsyncThunk(
@@ -84,10 +94,8 @@ const userSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(registerUser.fulfilled, (state, action) => {
-        setCookie('accessToken', action.payload.accessToken);
-        localStorage.setItem('refreshToken', action.payload.refreshToken);
-        state.user = action.payload.user;
+      .addCase(registerUser.fulfilled, (state, { payload }) => {
+        state.user = payload;
       })
       .addCase(getUser.fulfilled, (state, action) => {
         state.user = action.payload.user;
@@ -95,10 +103,8 @@ const userSlice = createSlice({
       .addCase(updateUser.fulfilled, (state, action) => {
         state.user = action.payload.user;
       })
-      .addCase(loginUser.fulfilled, (state, action) => {
-        setCookie('accessToken', action.payload.accessToken);
-        localStorage.setItem('refreshToken', action.payload.refreshToken);
-        state.user = action.payload.user;
+      .addCase(loginUser.fulfilled, (state, { payload }) => {
+        state.user = payload;
       });
   }
 });
