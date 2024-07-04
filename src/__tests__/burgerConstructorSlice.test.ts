@@ -1,10 +1,11 @@
-import { ingredients as mockIingredients } from '../__mocks__/ingedients';
+import { ingredients as mockIngredients } from '../__mocks__/ingedients';
 import {
   burgerConstructorReducer,
   addItemToConstructor,
   removeItemFromConstructor,
   moveItemUpInConstructor,
   moveItemDownInConstructor,
+  clearConstructor,
   TBurgerState
 } from '@slices';
 
@@ -15,9 +16,9 @@ describe('Тестирование редьюсера слайса burgerConstru
       ingredients: []
     };
 
-    const bun = mockIingredients[0];
-    const main = mockIingredients[1];
-    const sauce = mockIingredients[3];
+    const bun = mockIngredients[0];
+    const main = mockIngredients[1];
+    const sauce = mockIngredients[3];
 
     // Добавим булку
     let state = burgerConstructorReducer(
@@ -45,9 +46,9 @@ describe('Тестирование редьюсера слайса burgerConstru
     const initialState: TBurgerState = {
       bun: null,
       ingredients: [
-        { ...mockIingredients[1], id: '1' },
-        { ...mockIingredients[2], id: '2' },
-        { ...mockIingredients[3], id: '3' }
+        { ...mockIngredients[1], id: '1' },
+        { ...mockIngredients[2], id: '2' },
+        { ...mockIngredients[3], id: '3' }
       ]
     };
 
@@ -66,9 +67,9 @@ describe('Тестирование редьюсера слайса burgerConstru
     const initialState: TBurgerState = {
       bun: null,
       ingredients: [
-        { ...mockIingredients[1], id: '1' },
-        { ...mockIingredients[2], id: '2' },
-        { ...mockIingredients[3], id: '3' }
+        { ...mockIngredients[1], id: '1' },
+        { ...mockIngredients[2], id: '2' },
+        { ...mockIngredients[3], id: '3' }
       ]
     };
 
@@ -99,5 +100,18 @@ describe('Тестирование редьюсера слайса burgerConstru
     expect(state.ingredients[0].id).toBe('3');
     expect(state.ingredients[1].id).toBe('1');
     expect(state.ingredients[2].id).toBe('2');
+  });
+
+  test('Тестирование cброса состояния конструктора', () => {
+    const initialState: TBurgerState = {
+      bun: { ...mockIngredients[1], id: '0' },
+      ingredients: [
+        { ...mockIngredients[1], id: '1' },
+        { ...mockIngredients[2], id: '2' }
+      ]
+    };
+
+    const state = burgerConstructorReducer(initialState, clearConstructor());
+    expect(state).toEqual({ bun: null, ingredients: [] });
   });
 });
