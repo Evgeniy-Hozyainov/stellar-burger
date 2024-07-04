@@ -73,13 +73,13 @@ describe('Тестирование редьюсера слайса burgerConstru
       ]
     };
 
-    // Попробуем переместить вверх самый первый ингредиент (с индексом 0)
+    // Переместим вверх самый первый ингредиент (с индексом 0)
     let actionMoveUp = moveItemUpInConstructor(0);
     let state = burgerConstructorReducer(initialState, actionMoveUp);
     // Состояние не должно измениться
     expect(state).toEqual(initialState);
 
-    // Попробуем переместить вниз самый последний ингредиент (с индексом 2)
+    // Переместим вниз самый последний ингредиент (с индексом 2)
     state = burgerConstructorReducer(
       initialState,
       moveItemDownInConstructor(2)
