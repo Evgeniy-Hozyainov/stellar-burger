@@ -93,7 +93,7 @@
     "lint:fix": "npm run lint -- --fix",
     "format": "prettier ./src --write",
     "cypress:open": "cypress open",
-    "test": "jest"
+    "test": "jest --verbose"
   },
   "eslintConfig": {
     "extends": [
