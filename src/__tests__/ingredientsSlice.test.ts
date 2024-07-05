@@ -5,11 +5,9 @@ import {
   ingredientsSelector,
   isIngredientsLoadingSelector,
   ingredientsReducer,
-  fetchIngredients
+  fetchIngredients,
+  TIngredientsState
 } from '@slices';
-import { getIngredientsApi } from '@api';
-import { flattenDiagnosticMessageText } from 'typescript';
-import { beforeEach } from 'node:test';
 
 describe('Тестирование слайса ingredientsSlice', () => {
   describe('Тестирование загрузки ингредиентов', () => {
@@ -17,7 +15,7 @@ describe('Тестирование слайса ingredientsSlice', () => {
       jest.restoreAllMocks();
     });
 
-    test('Успешная загрузка', async () => {
+    test('Успешная загрузка корректно обрабатывается', async () => {
       jest.spyOn(global, 'fetch').mockImplementation(() =>
         Promise.resolve(
           new Response(
@@ -50,7 +48,7 @@ describe('Тестирование слайса ingredientsSlice', () => {
       expect(fetch).toHaveBeenCalledTimes(1);
     });
 
-    test('Ошибка загрузки ингредиентов', async () => {
+    test('Ошибка загрузки ингредиентов корректно обрабатывается', async () => {
       jest.spyOn(global, 'fetch').mockImplementation(() =>
         Promise.resolve(
           new Response(JSON.stringify({ success: false }), {
@@ -79,40 +77,57 @@ describe('Тестирование слайса ingredientsSlice', () => {
     });
   });
 
-  describe('Тестирование редьюсера fetchIngredients', () => {
-    beforeEach(() => {});
+  describe('fetchIngredients async thunk', () => {
+    const initialState: TIngredientsState = {
+      ingredients: [],
+      isLoading: false,
+      error: null
+    };
 
-    const initialState = { ingredients: [], isLoading: false, error: null };
-
-    test('pending', () => {
-      const newState = ingredientsReducer(
-        initialState,
-        fetchIngredients.pending('')
-      );
-
-      expect(newState.isLoading).toBe(true);
+    test('состояние pending корректно обрабатывается', () => {
+      const action = fetchIngredients.pending('');
+      const state = ingredientsReducer(initialState, action);
+      expect(state).toEqual({ ...initialState, isLoading: true });
     });
 
-    test('rejected', () => {
-      const newState = ingredientsReducer(
-        initialState,
-        fetchIngredients.rejected(new Error('Test error'), '')
-      );
-
-      expect(newState.ingredients).toEqual([]);
-      expect(newState.isLoading).toBe(false);
-      expect(newState.error).toBe('Test error');
+    test('состояние rejected корректно обрабатывается', () => {
+      const error = 'Something went wrong';
+      const action = fetchIngredients.rejected(new Error(error), '');
+      const state = ingredientsReducer(initialState, action);
+      expect(state).toEqual({ ...initialState, error, isLoading: false });
     });
 
-    test('fullfilled', () => {
-      const newState = ingredientsReducer(
-        initialState,
-        fetchIngredients.rejected(new Error('Test error'), '')
-      );
+    test('состояние fullfilled корректно обрабатывается', async () => {
+      const action = fetchIngredients.fulfilled(mockIngredients, '');
+      const state = ingredientsReducer(initialState, action);
+      expect(state).toEqual({
+        ingredients: mockIngredients,
+        error: null,
+        isLoading: false
+      });
+    });
+  });
 
-      expect(newState.ingredients).toEqual([]);
-      expect(newState.isLoading).toBe(false);
-      expect(newState.error).toBe('Test error');
+  describe('Селекторы', () => {
+    const store = configureStore({
+      reducer: { ingredients: ingredientsReducer },
+      preloadedState: {
+        ingredients: {
+          ingredients: mockIngredients,
+          isLoading: false,
+          error: null
+        }
+      }
+    });
+
+    test('ingredientsSelector возвращает корректное значение', () => {
+      const ingedients = ingredientsSelector(store.getState());
+      expect(ingedients).toEqual(mockIngredients);
+    });
+
+    test('isIngredientsLoadingSelector возвращает корректное значение', () => {
+      const isLoading = isIngredientsLoadingSelector(store.getState());
+      expect(isLoading).toBe(false);
     });
   });
 });
