@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { orderBurgerApi } from '@api';
 import type { TOrder } from '@utils-types';
 
-type TOrderState = {
+export type TOrderState = {
   order: TOrder | null;
   orderRequest: boolean;
 };
